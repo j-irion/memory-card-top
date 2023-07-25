@@ -6,6 +6,7 @@ function App() {
   const [pokemonList, setPokemonList] = useState([]);
   const [clickedPokemon, setClickedPokemon] = useState([]);
   const [score, setScore] = useState(0);
+  const [highscore, setHighscore] = useState(0);
 
   const fetchPokemon = async () => {
     const randomId = Math.floor(Math.random() * 1000) + 1;
@@ -47,29 +48,17 @@ function App() {
       fetchAllPokemon();
       setClickedPokemon([]);
     } else {
-      const fetchNewPokemon = async () => {
-        const newPokemon = await fetchPokemon();
-        setPokemonList((prevPokemonList) =>
-          shuffleArray(prevPokemonList.concat(newPokemon))
-        );
-      };
-      fetchNewPokemon();
+      const shuffledPokemonList = shuffleArray(pokemonList);
+      setPokemonList(shuffledPokemonList);
     }
   }, [score]);
 
   const handleCardClick = (id) => {
     console.log(id);
     if (!clickedPokemon.includes(id)) {
-      setScore(score + 1);
-      const randomPokemonIndex = Math.floor(Math.random() * 9) + 1;
-      let newPokemonList = pokemonList.filter((pokemon) => pokemon.id !== id);
-      newPokemonList.splice(randomPokemonIndex, 1);
-      newPokemonList = [
-        ...newPokemonList,
-        pokemonList.find((pokemon) => pokemon.id === id),
-      ];
-      setPokemonList(newPokemonList);
       setClickedPokemon(clickedPokemon + id);
+      if (score === highscore) setHighscore(highscore + 1);
+      setScore(score + 1);
       return;
     }
     setScore(0);
@@ -79,7 +68,13 @@ function App() {
 
   return (
     <>
-      <div>{score}</div>
+      <header>
+        <h1>Pokemon Memory Card</h1>
+        <div id='scoreboard'>
+          <div>Highscore: {highscore}</div>
+          <div>Score: {score}</div>
+        </div>
+      </header>
       <div id='pokemonList'>
         {pokemonList.map((pokemon) => (
           <Card
